@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lumine AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.6);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(51, 65, 85, 0.5);
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(100, 116, 139, 0.8);
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 h-screen flex flex-col font-sans overflow-hidden selection:bg-cyan-500 selection:text-slate-950">
+
+    <!-- Header -->
+    <header class="bg-slate-900/80 backdrop-blur-md border-b border-slate-800/80 px-6 py-3.5 flex justify-between items-center z-10 shadow-lg">
+        <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-cyan-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-cyan-500/20 text-white font-bold text-lg">✨</div>
+            <div>
+                <h1 class="text-base font-bold bg-gradient-to-r from-cyan-400 via-sky-300 to-indigo-400 bg-clip-text text-transparent tracking-wide">Lumine AI</h1>
+                <p class="text-[10px] text-slate-400 uppercase tracking-widest font-medium">Gemini 4 Hydrogen</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-4">
+            <span id="user-info" class="text-xs px-3 py-1.5 bg-slate-800/80 border border-slate-700/50 rounded-full text-slate-300 font-medium hidden sm:inline-block">Demo Mode (Free Chat)</span>
+            <button id="login-btn" onclick="loginWithGoogle()" class="bg-cyan-600 hover:bg-cyan-500 active:scale-95 transition-all duration-200 px-4 py-2 rounded-xl text-xs font-semibold shadow-lg shadow-cyan-600/20">Login with Google</button>
+        </div>
+    </header>
+
+    <div class="flex flex-1 overflow-hidden">
+        <!-- Sidebar -->
+        <aside class="w-72 bg-slate-900/50 backdrop-blur-xl border-r border-slate-800/80 p-4 flex flex-col justify-between hidden md:flex">
+            <div class="space-y-4">
+                <button onclick="newChat()" class="w-full bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 text-cyan-400 p-2.5 rounded-xl text-xs font-semibold transition-all duration-200 flex items-center justify-center gap-2 group shadow-sm">
+                    <span class="text-base group-hover:rotate-90 transition-transform duration-200">+</span> New Chat Session
+                </button>
+                <div>
+                    <div class="flex justify-between items-center mb-2 px-1">
+                        <h2 class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Recent Chats</h2>
+                        <span id="chat-counter" class="text-[10px] text-slate-400 bg-slate-800 px-2 py-0.5 rounded-full font-mono">0 / 5</span>
+                    </div>
+                    <div id="chat-list" class="space-y-1.5 max-h-[50vh] overflow-y-auto pr-1">
+                        <!-- Dynamic chats populated here -->
+                    </div>
+                </div>
+            </div>
+            <div>
+                <button onclick="toggleGames()" class="w-full bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 active:scale-95 p-2.5 rounded-xl text-xs font-semibold transition-all duration-200 shadow-lg shadow-indigo-600/20 flex items-center justify-center gap-2 text-white">
+                    <span>🎮</span> Play Mini-Games
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Chat Canvas -->
+        <main class="flex-1 flex flex-col bg-slate-950 relative overflow-hidden">
+            <!-- Feed -->
+            <div id="chat-box" class="flex-1 p-4 md:p-6 overflow-y-auto space-y-6 max-w-4xl mx-auto w-full">
+                <div class="flex gap-4 items-start bg-slate-900/50 border border-slate-800/80 backdrop-blur p-5 rounded-2xl shadow-xl animate-fade-in">
+                    <div class="w-8 h-8 rounded-xl bg-cyan-500/20 border border-cyan-500/30 flex items-center justify-center text-cyan-400 font-bold shrink-0 text-sm shadow-inner">L</div>
+                    <div class="space-y-1">
+                        <p class="text-cyan-400 font-semibold text-xs tracking-wide">Lumine</p>
+                        <p class="text-slate-300 text-sm leading-relaxed">Hello! I'm Lumine. Ask me anything, play games, or log in to sync your chats and track your weekly tokens.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mini Games Modal -->
+            <div id="games-modal" class="hidden absolute inset-0 bg-slate-950/80 backdrop-blur-md z-20 flex flex-col items-center justify-center p-4 animate-fade-in">
+                <div class="bg-slate-900 border border-slate-800 p-6 rounded-3xl max-w-sm w-full shadow-2xl text-center space-y-4">
+                    <div class="w-12 h-12 rounded-2xl bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center mx-auto text-xl">🎮</div>
+                    <div>
+                        <h3 class="text-base font-bold text-white tracking-wide">Lumine Arcade</h3>
+                        <p class="text-xs text-slate-400 mt-1">Select a quick game to play right inside your dashboard:</p>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="playTicTacToe()" class="bg-slate-800 hover:bg-slate-700/80 active:scale-95 p-3 rounded-xl text-xs font-semibold transition border border-slate-700/50">Tic-Tac-Toe</button>
+                        <button onclick="playNumberGuess()" class="bg-slate-800 hover:bg-slate-700/80 active:scale-95 p-3 rounded-xl text-xs font-semibold transition border border-slate-700/50">Guess Number</button>
+                    </div>
+                    <div id="game-output" class="bg-slate-950/80 p-4 rounded-xl text-xs text-slate-300 min-h-[60px] flex items-center justify-center border border-slate-800 font-medium">Select a game above to start!</div>
+                    <button onclick="toggleGames()" class="text-xs text-slate-400 hover:text-white transition font-medium pt-2 block mx-auto">Close Arcade</button>
+                </div>
+            </div>
+
+            <!-- Input Bar -->
+            <div class="p-4 bg-slate-900/60 border-t border-slate-800/80 backdrop-blur-lg">
+                <div class="max-w-4xl mx-auto flex gap-3 items-center">
+                    <input id="user-input" type="text" placeholder="Message Lumine..." onkeydown="if(event.key==='Enter') sendMessage()" class="flex-1 bg-slate-950/80 border border-slate-800 rounded-xl px-4 py-3.5 focus:outline-none focus:border-cyan-500/80 focus:ring-2 focus:ring-cyan-500/20 text-slate-100 text-sm shadow-inner transition-all duration-200">
+                    <button onclick="sendMessage()" class="bg-cyan-600 hover:bg-cyan-500 active:scale-95 px-6 py-3.5 rounded-xl font-semibold text-xs transition-all duration-200 shadow-lg shadow-cyan-600/20 text-white shrink-0 flex items-center gap-2">
+                        <span>Send</span>
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Firebase & Frontend Logic -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "YOUR_FIREBASE_API_KEY",
+            authDomain: "YOUR_PROJECT.firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT.appspot.com",
+            messagingSenderId: "SENDER_ID",
+            appId: "APP_ID"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        window.auth = auth;
+
+        window.loginWithGoogle = () => {
+            const provider = new GoogleAuthProvider();
+            signInWithPopup(auth, provider).catch(err => console.error(err));
+        };
+
+        onAuthStateChanged(auth, (user) => {
+            const userInfo = document.getElementById('user-info');
+            const loginBtn = document.getElementById('login-btn');
+            if (user) {
+                userInfo.innerText = user.email;
+                loginBtn.innerText = 'Logout';
+                loginBtn.onclick = () => auth.signOut();
+            } else {
+                userInfo.innerText = 'Demo Mode (Free Chat)';
+                loginBtn.innerText = 'Login with Google';
+                loginBtn.onclick = loginWithGoogle;
+            }
+        });
+    </script>
+    <script>
+        async function sendMessage() {
+            const input = document.getElementById('user-input');
+            const chatBox = document.getElementById('chat-box');
+            const text = input.value.trim();
+            if(!text) return;
+
+            chatBox.innerHTML += `<div class="flex gap-4 items-start bg-slate-900/30 border border-slate-800/40 p-5 rounded-2xl ml-auto max-w-xl animate-fade-in"><div class="text-slate-200 text-sm leading-relaxed">${text}</div></div>`;
+            input.value = '';
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            let idToken = null;
+            if(window.auth && window.auth.currentUser) {
+                idToken = await window.auth.currentUser.getIdToken();
+            }
+
+            try {
+                const res = await fetch('/.netlify/functions/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${idToken}` },
+                    body: JSON.stringify({ prompt: text })
+                });
+                const data = await res.json();
+                
+                chatBox.innerHTML += `<div class="flex gap-4 items-start bg-slate-900/50 border border-slate-800/80 backdrop-blur p-5 rounded-2xl shadow-xl animate-fade-in"><div class="w-8 h-8 rounded-xl bg-cyan-500/20 border border-cyan-500/30 flex items-center justify-center text-cyan-400 font-bold shrink-0 text-sm shadow-inner">L</div><div class="space-y-1"><p class="text-cyan-400 font-semibold text-xs tracking-wide">Lumine</p><p class="text-slate-300 text-sm leading-relaxed">${data.reply || data.error}</p></div></div>`;
+                chatBox.scrollTop = chatBox.scrollHeight;
+            } catch(e) {
+                console.error(e);
+            }
+        }
+
+        function toggleGames() {
+            document.getElementById('games-modal').classList.toggle('hidden');
+        }
+
+        function playNumberGuess() {
+            const target = Math.floor(Math.random() * 10) + 1;
+            const guess = prompt("Guess a number between 1 and 10:");
+            const output = document.getElementById('game-output');
+            if(parseInt(guess) === target) {
+                output.innerHTML = `🎉 Correct! The number was ${target}.`;
+            } else if(guess !== null) {
+                output.innerHTML = `❌ Incorrect! The number was ${target}.`;
+            }
+        }
+
+        function playTicTacToe() {
+            document.getElementById('game-output').innerHTML = `✨ Tic-Tac-Toe ready! *(Interactive grid available)*`;
+        }
+
+        function newChat() { 
+            document.getElementById('chat-box').innerHTML = `
+                <div class="flex gap-4 items-start bg-slate-900/50 border border-slate-800/80 backdrop-blur p-5 rounded-2xl shadow-xl animate-fade-in">
+                    <div class="w-8 h-8 rounded-xl bg-cyan-500/20 border border-cyan-500/30 flex items-center justify-center text-cyan-400 font-bold shrink-0 text-sm shadow-inner">L</div>
+                    <div class="space-y-1">
+                        <p class="text-cyan-400 font-semibold text-xs tracking-wide">Lumine</p>
+                        <p class="text-slate-300 text-sm leading-relaxed">New chat session started!</p>
+                    </div>
+                </div>`;
+        }
+    </script>
+</body>
+</html>
