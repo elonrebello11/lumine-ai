@@ -3,211 +3,249 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lumine AI</title>
+    <title>Lumine AI — Advanced Assistant</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            950: '#090d16',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(8px); }
-            to { opacity: 1; transform: translateY(0); }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        @keyframes floatUp {
+            from { opacity: 0; transform: translateY(12px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
         }
-        .animate-fade-in {
-            animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-        ::-webkit-scrollbar {
-            width: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: rgba(15, 23, 42, 0.6);
-        }
-        ::-webkit-scrollbar-thumb {
-            background: rgba(51, 65, 85, 0.5);
-            border-radius: 9999px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: rgba(100, 116, 139, 0.8);
+        .animate-float { animation: floatUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        
+        /* Custom sleek scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(99, 102, 241, 0.2); border-radius: 9999px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(99, 102, 241, 0.4); }
+
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
         }
     </style>
 </head>
-<body class="bg-slate-950 text-slate-100 h-screen flex flex-col font-sans overflow-hidden selection:bg-cyan-500 selection:text-slate-950">
+<body class="bg-slate-950 text-slate-100 h-[100dvh] flex flex-col justify-between overflow-hidden selection:bg-indigo-500 selection:text-white">
 
-    <!-- Header -->
-    <header class="bg-slate-900/80 backdrop-blur-md border-b border-slate-800/80 px-6 py-3.5 flex justify-between items-center z-10 shadow-lg">
-        <div class="flex items-center gap-3">
-            <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-cyan-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-cyan-500/20 text-white font-bold text-lg">✨</div>
+    <!-- Top Floating Branding Badge -->
+    <div class="absolute top-3 right-4 z-30 hidden sm:flex items-center space-x-2 text-[11px] font-semibold text-indigo-300 bg-indigo-950/60 px-3.5 py-1.5 rounded-full border border-indigo-800/50 shadow-xl backdrop-blur-md">
+        <span class="w-2 h-2 rounded-full bg-indigo-400 animate-pulse"></span>
+        <span>Powered by Hydrogen Gemini</span>
+    </div>
+
+    <!-- Header / Navbar -->
+    <header class="border-b border-slate-800/80 glass-panel px-4 sm:px-8 py-3.5 flex items-center justify-between z-20 shrink-0">
+        <div class="flex items-center space-x-3.5">
+            <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center font-bold text-base text-white shadow-lg shadow-indigo-500/25">
+                L
+            </div>
             <div>
-                <h1 class="text-base font-bold bg-gradient-to-r from-cyan-400 via-sky-300 to-indigo-400 bg-clip-text text-transparent tracking-wide">Lumine AI</h1>
-                <p class="text-[10px] text-slate-400 uppercase tracking-widest font-medium">Gemini 4 Hydrogen</p>
+                <h1 class="font-bold text-base tracking-tight text-white flex items-center gap-2">
+                    Lumine <span class="text-[10px] bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 px-2 py-0.5 rounded-full font-medium">v2.0</span>
+                </h1>
+                <p class="text-xs text-slate-400 hidden sm:block">Neutral, fast, and responsive assistant</p>
             </div>
         </div>
-        <div class="flex items-center gap-4">
-            <span id="user-info" class="text-xs px-3 py-1.5 bg-slate-800/80 border border-slate-700/50 rounded-full text-slate-300 font-medium hidden sm:inline-block">Demo Mode (Free Chat)</span>
-            <button id="login-btn" onclick="loginWithGoogle()" class="bg-cyan-600 hover:bg-cyan-500 active:scale-95 transition-all duration-200 px-4 py-2 rounded-xl text-xs font-semibold shadow-lg shadow-cyan-600/20">Login with Google</button>
+
+        <div id="auth-section" class="flex items-center space-x-3">
+            <button id="login-btn" onclick="loginWithGoogle()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all shadow-lg shadow-indigo-600/25 flex items-center gap-2 active:scale-95">
+                <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12.24 10.285V14.2h6.806c-.275 1.765-2.056 5.174-6.806 5.174-4.095 0-7.439-3.389-7.439-7.574s3.344-7.574 7.439-7.574c2.33 0 3.891.989 4.785 1.849l3.254-3.138C18.189 1.186 15.479 0 12.24 0 5.48 0 0 5.48 0 12.24s5.48 12.24 12.24 12.24c7.058 0 11.732-4.96 11.732-11.951 0-.825-.088-1.452-.196-2.044H12.24z"/></svg>
+                Sign in with Google
+            </button>
+            <div id="user-info" class="hidden items-center space-x-3 bg-slate-900 border border-slate-800 px-3.5 py-1.5 rounded-xl shadow-inner">
+                <span id="user-name" class="text-xs sm:text-sm font-medium text-slate-300 max-w-[120px] sm:max-w-[180px] truncate"></span>
+                <button onclick="logout()" class="text-xs bg-slate-800 hover:bg-red-500/20 hover:text-red-400 hover:border-red-500/30 border border-slate-700 px-2.5 py-1 rounded-lg text-slate-400 transition-all">Sign out</button>
+            </div>
         </div>
     </header>
 
-    <div class="flex flex-1 overflow-hidden">
-        <!-- Sidebar -->
-        <aside class="w-72 bg-slate-900/50 backdrop-blur-xl border-r border-slate-800/80 p-4 flex flex-col justify-between hidden md:flex">
-            <div class="space-y-4">
-                <button onclick="newChat()" class="w-full bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 text-cyan-400 p-2.5 rounded-xl text-xs font-semibold transition-all duration-200 flex items-center justify-center gap-2 group shadow-sm">
-                    <span class="text-base group-hover:rotate-90 transition-transform duration-200">+</span> New Chat Session
-                </button>
-                <div>
-                    <div class="flex justify-between items-center mb-2 px-1">
-                        <h2 class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Recent Chats</h2>
-                        <span id="chat-counter" class="text-[10px] text-slate-400 bg-slate-800 px-2 py-0.5 rounded-full font-mono">0 / 5</span>
-                    </div>
-                    <div id="chat-list" class="space-y-1.5 max-h-[50vh] overflow-y-auto pr-1">
-                        <!-- Dynamic chats populated here -->
-                    </div>
+    <!-- Main Chat Window Area -->
+    <main class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6 max-w-4xl w-full mx-auto" id="chat-container">
+        <!-- Welcome Greeting Card -->
+        <div class="flex items-start space-x-3.5 animate-float">
+            <div class="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center font-bold text-sm text-white shadow-md shrink-0">L</div>
+            <div class="space-y-3 max-w-[90%] sm:max-w-[80%]">
+                <div class="glass-panel border border-slate-800/80 rounded-2xl p-4 sm:p-5 text-sm text-slate-200 shadow-xl leading-relaxed">
+                    <p class="font-semibold text-white mb-1">Hello, I am Lumine.</p>
+                    <p class="text-slate-300">How can I assist your workflow today? Choose a prompt below or type your query directly.</p>
+                </div>
+                <!-- Quick Suggestion Chips -->
+                <div class="flex flex-wrap gap-2 pt-1">
+                    <button onclick="sendPreset('Explain quantum computing simply')" class="text-xs bg-slate-900 hover:bg-indigo-600/20 hover:border-indigo-500/40 border border-slate-800 text-slate-300 px-3 py-1.5 rounded-lg transition-all shadow-sm">⚡ Explain quantum computing</button>
+                    <button onclick="sendPreset('Write a python script for file batch renaming')" class="text-xs bg-slate-900 hover:bg-indigo-600/20 hover:border-indigo-500/40 border border-slate-800 text-slate-300 px-3 py-1.5 rounded-lg transition-all shadow-sm">💻 Python batch rename script</button>
+                    <button onclick="sendPreset('Give me 3 healthy meal prep ideas')" class="text-xs bg-slate-900 hover:bg-indigo-600/20 hover:border-indigo-500/40 border border-slate-800 text-slate-300 px-3 py-1.5 rounded-lg transition-all shadow-sm">🥗 Healthy meal prep ideas</button>
                 </div>
             </div>
-            <div>
-                <button onclick="toggleGames()" class="w-full bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 active:scale-95 p-2.5 rounded-xl text-xs font-semibold transition-all duration-200 shadow-lg shadow-indigo-600/20 flex items-center justify-center gap-2 text-white">
-                    <span>🎮</span> Play Mini-Games
-                </button>
-            </div>
-        </aside>
+        </div>
+    </main>
 
-        <!-- Main Chat Canvas -->
-        <main class="flex-1 flex flex-col bg-slate-950 relative overflow-hidden">
-            <!-- Feed -->
-            <div id="chat-box" class="flex-1 p-4 md:p-6 overflow-y-auto space-y-6 max-w-4xl mx-auto w-full">
-                <div class="flex gap-4 items-start bg-slate-900/50 border border-slate-800/80 backdrop-blur p-5 rounded-2xl shadow-xl animate-fade-in">
-                    <div class="w-8 h-8 rounded-xl bg-cyan-500/20 border border-cyan-500/30 flex items-center justify-center text-cyan-400 font-bold shrink-0 text-sm shadow-inner">L</div>
-                    <div class="space-y-1">
-                        <p class="text-cyan-400 font-semibold text-xs tracking-wide">Lumine</p>
-                        <p class="text-slate-300 text-sm leading-relaxed">Hello! I'm Lumine. Ask me anything, play games, or log in to sync your chats and track your weekly tokens.</p>
-                    </div>
-                </div>
+    <!-- Bottom Input & Footer Control Bar -->
+    <footer class="border-t border-slate-800/80 glass-panel p-4 sm:p-6 z-20 shrink-0">
+        <form id="chat-form" onsubmit="handleSubmit(event)" class="max-w-4xl mx-auto flex gap-3 items-center">
+            <div class="relative flex-1">
+                <input 
+                    type="text" 
+                    id="user-input" 
+                    placeholder="Ask Lumine anything..." 
+                    autocomplete="off"
+                    class="w-full bg-slate-900/90 border border-slate-800 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 rounded-2xl px-4.5 py-3.5 text-sm sm:text-base text-slate-100 placeholder-slate-500 outline-none transition-all shadow-inner"
+                >
             </div>
+            <button 
+                type="submit" 
+                id="send-btn"
+                class="bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white px-6 py-3.5 rounded-2xl text-sm font-semibold transition-all shadow-lg shadow-indigo-600/30 shrink-0 flex items-center justify-center gap-2"
+            >
+                <span>Send</span>
+                <svg class="w-4 h-4 rotate-90" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+            </button>
+        </form>
 
-            <!-- Mini Games Modal -->
-            <div id="games-modal" class="hidden absolute inset-0 bg-slate-950/80 backdrop-blur-md z-20 flex flex-col items-center justify-center p-4 animate-fade-in">
-                <div class="bg-slate-900 border border-slate-800 p-6 rounded-3xl max-w-sm w-full shadow-2xl text-center space-y-4">
-                    <div class="w-12 h-12 rounded-2xl bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center mx-auto text-xl">🎮</div>
-                    <div>
-                        <h3 class="text-base font-bold text-white tracking-wide">Lumine Arcade</h3>
-                        <p class="text-xs text-slate-400 mt-1">Select a quick game to play right inside your dashboard:</p>
-                    </div>
-                    <div class="grid grid-cols-2 gap-2">
-                        <button onclick="playTicTacToe()" class="bg-slate-800 hover:bg-slate-700/80 active:scale-95 p-3 rounded-xl text-xs font-semibold transition border border-slate-700/50">Tic-Tac-Toe</button>
-                        <button onclick="playNumberGuess()" class="bg-slate-800 hover:bg-slate-700/80 active:scale-95 p-3 rounded-xl text-xs font-semibold transition border border-slate-700/50">Guess Number</button>
-                    </div>
-                    <div id="game-output" class="bg-slate-950/80 p-4 rounded-xl text-xs text-slate-300 min-h-[60px] flex items-center justify-center border border-slate-800 font-medium">Select a game above to start!</div>
-                    <button onclick="toggleGames()" class="text-xs text-slate-400 hover:text-white transition font-medium pt-2 block mx-auto">Close Arcade</button>
-                </div>
-            </div>
+        <!-- Fixed Branding Footer -->
+        <div class="text-center mt-3 pt-2 border-t border-slate-900 flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-6 text-[11px] text-slate-500 font-medium">
+            <span class="uppercase tracking-wider">Made by killer studious</span>
+            <span class="hidden sm:inline text-slate-700">•</span>
+            <span class="sm:hidden text-indigo-400 font-semibold">Powered by Hydrogen Gemini</span>
+        </div>
+    </footer>
 
-            <!-- Input Bar -->
-            <div class="p-4 bg-slate-900/60 border-t border-slate-800/80 backdrop-blur-lg">
-                <div class="max-w-4xl mx-auto flex gap-3 items-center">
-                    <input id="user-input" type="text" placeholder="Message Lumine..." onkeydown="if(event.key==='Enter') sendMessage()" class="flex-1 bg-slate-950/80 border border-slate-800 rounded-xl px-4 py-3.5 focus:outline-none focus:border-cyan-500/80 focus:ring-2 focus:ring-cyan-500/20 text-slate-100 text-sm shadow-inner transition-all duration-200">
-                    <button onclick="sendMessage()" class="bg-cyan-600 hover:bg-cyan-500 active:scale-95 px-6 py-3.5 rounded-xl font-semibold text-xs transition-all duration-200 shadow-lg shadow-cyan-600/20 text-white shrink-0 flex items-center gap-2">
-                        <span>Send</span>
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-                    </button>
-                </div>
-            </div>
-        </main>
-    </div>
-
-    <!-- Firebase & Frontend Logic -->
+    <!-- Firebase & Chat Logic Scripts -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-       const firebaseConfig = {
-  apiKey: "AIzaSyBB0rtme8j8C7ykkdbf0MoQkx_hmkoMyIc",
-  authDomain: "lumine-ai-dde1b.firebaseapp.com",
-  projectId: "lumine-ai-dde1b",
-  storageBucket: "lumine-ai-dde1b.firebasestorage.app",
-  messagingSenderId: "33838856101",
-  appId: "1:33838856101:web:49bc34befba81df7b71a4c"
-};
+        // Firebase Web Config placeholders (Update with your Firebase Console values if desired)
+        const firebaseConfig = {
+            apiKey: "YOUR_FIREBASE_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
-        window.auth = auth;
+        const provider = new GoogleAuthProvider();
 
-        window.loginWithGoogle = () => {
-            const provider = new GoogleAuthProvider();
-            signInWithPopup(auth, provider).catch(err => console.error(err));
+        let idToken = null;
+
+        window.loginWithGoogle = async () => {
+            try {
+                await signInWithPopup(auth, provider);
+            } catch (error) {
+                console.error("Login popup error:", error);
+            }
         };
 
-        onAuthStateChanged(auth, (user) => {
-            const userInfo = document.getElementById('user-info');
+        window.logout = () => signOut(auth);
+
+        onAuthStateChanged(auth, async (user) => {
             const loginBtn = document.getElementById('login-btn');
+            const userInfo = document.getElementById('user-info');
+            const userName = document.getElementById('user-name');
+
             if (user) {
-                userInfo.innerText = user.email;
-                loginBtn.innerText = 'Logout';
-                loginBtn.onclick = () => auth.signOut();
+                loginBtn.classList.add('hidden');
+                userInfo.classList.remove('flex');
+                userInfo.style.display = 'flex';
+                userName.textContent = user.displayName || user.email;
+                idToken = await user.getIdToken();
             } else {
-                userInfo.innerText = 'Demo Mode (Free Chat)';
-                loginBtn.innerText = 'Login with Google';
-                loginBtn.onclick = loginWithGoogle;
+                loginBtn.classList.remove('hidden');
+                userInfo.style.display = 'none';
+                idToken = null;
             }
         });
-    </script>
-    <script>
-        async function sendMessage() {
+
+        window.sendPreset = (text) => {
+            document.getElementById('user-input').value = text;
+            document.getElementById('chat-form').dispatchEvent(new Event('submit'));
+        };
+
+        window.handleSubmit = async (e) => {
+            e.preventDefault();
             const input = document.getElementById('user-input');
-            const chatBox = document.getElementById('chat-box');
-            const text = input.value.trim();
-            if(!text) return;
+            const prompt = input.value.trim();
+            if (!prompt) return;
 
-            chatBox.innerHTML += `<div class="flex gap-4 items-start bg-slate-900/30 border border-slate-800/40 p-5 rounded-2xl ml-auto max-w-xl animate-fade-in"><div class="text-slate-200 text-sm leading-relaxed">${text}</div></div>`;
+            const container = document.getElementById('chat-container');
+            
+            // Append User Bubble
+            container.innerHTML += `
+                <div class="flex items-end justify-end space-x-3 animate-float">
+                    <div class="bg-indigo-600 text-white rounded-2xl px-4.5 py-3 text-sm sm:text-base max-w-[85%] shadow-md leading-relaxed">${escapeHtml(prompt)}</div>
+                </div>`;
             input.value = '';
-            chatBox.scrollTop = chatBox.scrollHeight;
+            container.scrollTop = container.scrollHeight;
 
-            let idToken = null;
-            if(window.auth && window.auth.currentUser) {
-                idToken = await window.auth.currentUser.getIdToken();
-            }
-
-            try {
-                const res = await fetch('/.netlify/functions/chat', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${idToken}` },
-                    body: JSON.stringify({ prompt: text })
-                });
-                const data = await res.json();
-                
-                chatBox.innerHTML += `<div class="flex gap-4 items-start bg-slate-900/50 border border-slate-800/80 backdrop-blur p-5 rounded-2xl shadow-xl animate-fade-in"><div class="w-8 h-8 rounded-xl bg-cyan-500/20 border border-cyan-500/30 flex items-center justify-center text-cyan-400 font-bold shrink-0 text-sm shadow-inner">L</div><div class="space-y-1"><p class="text-cyan-400 font-semibold text-xs tracking-wide">Lumine</p><p class="text-slate-300 text-sm leading-relaxed">${data.reply || data.error}</p></div></div>`;
-                chatBox.scrollTop = chatBox.scrollHeight;
-            } catch(e) {
-                console.error(e);
-            }
-        }
-
-        function toggleGames() {
-            document.getElementById('games-modal').classList.toggle('hidden');
-        }
-
-        function playNumberGuess() {
-            const target = Math.floor(Math.random() * 10) + 1;
-            const guess = prompt("Guess a number between 1 and 10:");
-            const output = document.getElementById('game-output');
-            if(parseInt(guess) === target) {
-                output.innerHTML = `🎉 Correct! The number was ${target}.`;
-            } else if(guess !== null) {
-                output.innerHTML = `❌ Incorrect! The number was ${target}.`;
-            }
-        }
-
-        function playTicTacToe() {
-            document.getElementById('game-output').innerHTML = `✨ Tic-Tac-Toe ready! *(Interactive grid available)*`;
-        }
-
-        function newChat() { 
-            document.getElementById('chat-box').innerHTML = `
-                <div class="flex gap-4 items-start bg-slate-900/50 border border-slate-800/80 backdrop-blur p-5 rounded-2xl shadow-xl animate-fade-in">
-                    <div class="w-8 h-8 rounded-xl bg-cyan-500/20 border border-cyan-500/30 flex items-center justify-center text-cyan-400 font-bold shrink-0 text-sm shadow-inner">L</div>
-                    <div class="space-y-1">
-                        <p class="text-cyan-400 font-semibold text-xs tracking-wide">Lumine</p>
-                        <p class="text-slate-300 text-sm leading-relaxed">New chat session started!</p>
+            // Loading State Bubble
+            const loadingId = 'loading-' + Date.now();
+            container.innerHTML += `
+                <div id="${loadingId}" class="flex items-start space-x-3.5 animate-float">
+                    <div class="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center font-bold text-sm text-white shadow-md shrink-0">L</div>
+                    <div class="glass-panel border border-slate-800 rounded-2xl px-4 py-3.5 text-sm text-slate-400 shadow-lg flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-indigo-400 animate-bounce"></span>
+                        <span class="w-2 h-2 rounded-full bg-indigo-400 animate-bounce [animation-delay:0.2s]"></span>
+                        <span class="w-2 h-2 rounded-full bg-indigo-400 animate-bounce [animation-delay:0.4s]"></span>
+                        <span class="ml-1 text-xs text-slate-400">Lumine is thinking...</span>
                     </div>
                 </div>`;
+            container.scrollTop = container.scrollHeight;
+
+            try {
+                const headers = { 'Content-Type': 'application/json' };
+                if (idToken) headers['Authorization'] = `Bearer ${idToken}`;
+
+                const res = await fetch('/.netlify/functions/chat', {
+                    method: 'POST',
+                    headers: headers,
+                    body: JSON.stringify({ prompt })
+                });
+                const data = await res.json();
+
+                document.getElementById(loadingId).remove();
+                
+                container.innerHTML += `
+                    <div class="flex items-start space-x-3.5 animate-float">
+                        <div class="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center font-bold text-sm text-white shadow-md shrink-0">L</div>
+                        <div class="glass-panel border border-slate-800 rounded-2xl px-4.5 py-3.5 text-sm sm:text-base text-slate-200 shadow-xl max-w-[90%] sm:max-w-[85%] leading-relaxed">${escapeHtml(data.reply || data.error)}</div>
+                    </div>`;
+                container.scrollTop = container.scrollHeight;
+            } catch (err) {
+                document.getElementById(loadingId).remove();
+                container.innerHTML += `
+                    <div class="flex items-start space-x-3.5 animate-float">
+                        <div class="w-9 h-9 rounded-xl bg-red-600 flex items-center justify-center font-bold text-sm text-white shadow-md shrink-0">!</div>
+                        <div class="bg-slate-900 border border-red-900/50 rounded-2xl px-4.5 py-3.5 text-sm text-red-400 shadow-xl max-w-[85%]">Connection error occurred. Please check network/Netlify function.</div>
+                    </div>`;
+                container.scrollTop = container.scrollHeight;
+            }
+        };
+
+        function escapeHtml(text) {
+            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
         }
     </script>
 </body>
