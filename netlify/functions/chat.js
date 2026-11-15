@@ -34,7 +34,7 @@ export async function handler(event, context) {
     }
 
     // Put your exact Google login email here for unlimited credits
-    const ADMIN_EMAIL = "your-email@gmail.com"; 
+    const ADMIN_EMAIL = "elonrebello11@gmail.com"; 
     const isAdmin = userEmail === ADMIN_EMAIL;
 
     if (!isAdmin && userId !== 'demo-user') {
