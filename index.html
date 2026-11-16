@@ -5,632 +5,40 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#070914" />
     <title>Lumine AI</title>
+    <link rel="stylesheet" href="./styles.css" />
     <style>
-      :root {
-        color-scheme: dark;
-        --page: #070914;
-        --bg-1: #090d1b;
-        --bg-2: #0d1222;
-        --panel: rgba(15, 22, 37, 0.7);
-        --panel-strong: rgba(16, 24, 41, 0.94);
-        --line: rgba(180, 191, 255, 0.15);
-        --line-bright: rgba(180, 191, 255, 0.28);
-        --text: #edf0ff;
-        --muted: #a8afcb;
-        --soft: #7d84a1;
-        --primary: #8a7cff;
-        --primary-strong: #6f5fe8;
-        --cyan: #68d5f5;
-        --success: #72e5b9;
-        --danger: #ff8398;
-        --shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
-      }
-
-      * { box-sizing: border-box; }
-
-      html {
-        min-height: 100%;
-        background: var(--page);
-        scroll-behavior: smooth;
-      }
-
-      body {
-        margin: 0;
-        min-height: 100vh;
-        min-height: 100dvh;
-        overflow: hidden;
-        color: var(--text);
-        font-family: "Segoe UI", Arial, sans-serif;
-        background:
-          radial-gradient(circle at 12% 12%, rgba(112, 96, 255, 0.18), transparent 25%),
-          radial-gradient(circle at 88% 84%, rgba(75, 202, 255, 0.12), transparent 20%),
-          linear-gradient(135deg, #070b16 0%, #09101d 45%, #0a101d 100%);
-        -webkit-font-smoothing: antialiased;
-        text-rendering: optimizeLegibility;
-      }
-
-      body, button, input, textarea { font: inherit; }
-      button { cursor: pointer; }
-      button:focus-visible,
-      input:focus-visible,
-      textarea:focus-visible {
-        outline: 2px solid rgba(138, 124, 255, 0.8);
-        outline-offset: 2px;
-      }
-      ::selection { background: rgba(138, 124, 255, 0.35); color: #fff; }
-
-      #app {
-        position: relative;
-        display: flex;
-        flex-direction: column;
-        width: 100%;
-        height: 100vh;
-        height: 100dvh;
-        overflow: hidden;
-        isolation: isolate;
-      }
-
-      .ambient {
-        position: absolute;
-        width: 460px;
-        height: 460px;
-        border-radius: 50%;
-        filter: blur(110px);
-        opacity: 0.14;
-        pointer-events: none;
-        z-index: 0;
-      }
-
-      .ambient.one {
-        left: -180px;
-        top: 8%;
-        background: #7c6cff;
-      }
-
-      .ambient.two {
-        right: -180px;
-        bottom: 8%;
-        background: #56d4f8;
-      }
-
-      .glass {
-        border: 1px solid var(--line);
-        background: rgba(14, 20, 31, 0.72);
-        box-shadow: 0 22px 70px rgba(0, 0, 0, 0.28);
-        backdrop-filter: blur(18px);
-        -webkit-backdrop-filter: blur(18px);
-      }
-
-      .topbar {
-        position: relative;
-        z-index: 2;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 18px;
-        min-height: 80px;
-        padding: 14px clamp(16px, 4vw, 40px);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-        background: rgba(8, 11, 19, 0.66);
-        backdrop-filter: blur(18px);
-        -webkit-backdrop-filter: blur(18px);
-      }
-
-      .brand {
-        display: inline-flex;
-        align-items: center;
-        gap: 12px;
-        text-decoration: none;
-        color: var(--text);
-      }
-
-      .brand-mark {
-        display: grid;
-        place-items: center;
-        width: 42px;
-        height: 42px;
-        border-radius: 16px;
-        background: linear-gradient(145deg, #9a8dff, #665ae7 70%);
-        box-shadow: 0 10px 28px rgba(124, 108, 255, 0.35);
-        border: 1px solid rgba(222, 216, 255, 0.35);
-        font-weight: 800;
-        font-size: 20px;
-        color: white;
-      }
-
-      .brand-copy {
-        display: flex;
-        flex-direction: column;
-        line-height: 1.1;
-      }
-
-      .brand-name {
-        font-size: 1.15rem;
-        font-weight: 700;
-        letter-spacing: -0.04em;
-      }
-
-      .brand-sub {
-        font-size: 9px;
-        letter-spacing: 0.18em;
-        text-transform: uppercase;
-        color: var(--soft);
-      }
-
-      .header-actions {
-        display: flex;
-        align-items: center;
-        justify-content: flex-end;
-        gap: 10px;
-      }
-
-      .status-pill {
-        display: inline-flex;
-        align-items: center;
-        gap: 9px;
-        padding: 8px 12px;
-        border-radius: 999px;
-        border: 1px solid rgba(132, 122, 255, 0.28);
-        background: rgba(83, 69, 157, 0.18);
-        color: #dfe1ff;
-        font-size: 11px;
-        font-weight: 600;
-        letter-spacing: 0.02em;
-        white-space: nowrap;
-      }
-
-      .status-pill .dot {
-        width: 7px;
-        height: 7px;
-        border-radius: 50%;
-        background: var(--success);
-        box-shadow: 0 0 10px rgba(114, 229, 185, 0.8);
-      }
-
-      .button {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        min-height: 42px;
-        padding: 0 16px;
-        border: 1px solid transparent;
-        border-radius: 13px;
-        background: transparent;
-        color: currentColor;
-        cursor: pointer;
-        transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease, border-color 0.18s ease;
-      }
-
-      .button:hover:not(:disabled) { transform: translateY(-1px); }
-      .button:active:not(:disabled) { transform: translateY(0) scale(0.98); }
-      .button:disabled { opacity: 0.6; cursor: not-allowed; }
-
-      .button-primary {
-        background: linear-gradient(135deg, #8f82ff, #685ce6);
-        box-shadow: 0 10px 24px rgba(101, 88, 220, 0.24);
-        color: white;
-      }
-
-      .button-primary:hover:not(:disabled) {
-        background: linear-gradient(135deg, #9b90ff, #7268eb);
-      }
-
-      .button-ghost {
-        border: 1px solid var(--line);
-        background: rgba(255, 255, 255, 0.04);
-        color: #edf4ff;
-      }
-
-      .button-ghost:hover:not(:disabled) {
-        border-color: var(--line-bright);
-        background: rgba(255, 255, 255, 0.08);
-      }
-
-      .icon { width: 18px; height: 18px; }
-
-      .auth-controls { display: flex; align-items: center; justify-content: flex-end; gap: 10px; }
-
-      .user-chip {
-        display: inline-flex;
-        align-items: center;
-        gap: 9px;
-        padding: 5px 7px 5px 10px;
-        border: 1px solid var(--line);
-        border-radius: 999px;
-        background: rgba(255, 255, 255, 0.035);
-        max-width: 240px;
-      }
-
-      .user-avatar {
-        width: 28px;
-        height: 28px;
-        border-radius: 50%;
-        object-fit: cover;
-        border: 1px solid rgba(255, 255, 255, 0.18);
-        background: rgba(255, 255, 255, 0.08);
-      }
-
-      .user-name {
-        overflow: hidden;
-        max-width: 120px;
-        white-space: nowrap;
-        text-overflow: ellipsis;
-        font-size: 12px;
-        color: #eff3ff;
-      }
-
-      .signout-btn {
-        min-height: 30px;
-        padding: 0 10px;
-        border-radius: 999px;
-        font-size: 11px;
-      }
-
-      .chat-shell {
-        position: relative;
-        z-index: 2;
-        display: flex;
-        flex-direction: column;
-        width: min(100%, 920px);
-        min-height: 0;
-        flex: 1;
-        align-self: center;
-        padding: 0 clamp(14px, 3vw, 32px);
-      }
-
-      .chat-scroll {
-        display: flex;
-        flex-direction: column;
-        gap: 20px;
-        min-height: 0;
-        flex: 1;
-        overflow-y: auto;
-        padding: 28px 2px 32px;
-        scrollbar-width: thin;
-        scrollbar-color: rgba(138, 124, 255, 0.38) transparent;
-      }
-
-      .chat-scroll::-webkit-scrollbar { width: 6px; }
-      .chat-scroll::-webkit-scrollbar-track { background: transparent; }
-      .chat-scroll::-webkit-scrollbar-thumb {
-        border-radius: 999px;
-        background: rgba(138, 124, 255, 0.38);
-      }
-
-      .welcome {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-        align-self: center;
-        margin: auto 0;
-        padding: 24px 12px 32px;
-        max-width: 650px;
-      }
-
-      .welcome-orb {
-        display: grid;
-        place-items: center;
-        width: 72px;
-        height: 72px;
-        border-radius: 24px;
-        background: linear-gradient(145deg, rgba(146, 132, 255, 0.96), rgba(82, 86, 171, 0.96));
-        border: 1px solid rgba(204, 195, 255, 0.42);
-        box-shadow: 0 12px 34px rgba(107, 96, 224, 0.34);
-        color: white;
-        font-size: 34px;
-        font-weight: 700;
-        margin-bottom: 18px;
-      }
-
-      .welcome h2 {
-        margin: 0;
-        font-size: clamp(32px, 4.5vw, 52px);
-        line-height: 1.05;
-        letter-spacing: -0.06em;
-        font-weight: 700;
-      }
-
-      .gradient-text {
-        background: linear-gradient(135deg, #d2ceff 0%, #8eddf6 100%);
-        -webkit-background-clip: text;
-        background-clip: text;
-        color: transparent;
-      }
-
-      .welcome p {
-        margin: 12px 0 0;
-        max-width: 470px;
-        color: var(--muted);
-        font-size: 14px;
-        line-height: 1.75;
-      }
-
-      .suggestions {
-        display: flex;
-        justify-content: center;
-        flex-wrap: wrap;
-        gap: 8px;
-        margin-top: 22px;
-      }
-
-      .suggestion {
-        padding: 8px 12px;
-        border-radius: 999px;
-        border: 1px solid var(--line);
-        background: rgba(255, 255, 255, 0.03);
-        color: #dfe5ff;
-        font-size: 11px;
-        cursor: pointer;
-        transition: border-color 0.18s ease, background 0.18s ease, transform 0.18s ease;
-      }
-
-      .suggestion:hover {
-        border-color: var(--line-bright);
-        background: rgba(138, 124, 255, 0.1);
-        transform: translateY(-1px);
-      }
-
-      .message {
-        display: flex;
-        align-items: flex-start;
-        gap: 11px;
-        width: 100%;
-        animation: appear 0.25s ease both;
-      }
-
-      .message-user { justify-content: flex-end; }
-
-      .message-avatar {
-        width: 34px;
-        height: 34px;
-        display: grid;
-        place-items: center;
-        flex: 0 0 auto;
-        border-radius: 12px;
-        background: linear-gradient(145deg, #8a7cff, #5d53d8);
-        border: 1px solid rgba(214, 208, 255, 0.22);
-        font-weight: 700;
-        color: white;
-        font-size: 14px;
-      }
-
-      .message-avatar.user {
-        background: linear-gradient(145deg, #43a8d6, #2c6f8a);
-        border-color: rgba(122, 211, 249, 0.24);
-      }
-
-      .message-content {
-        display: flex;
-        flex-direction: column;
-        max-width: min(80%, 700px);
-        gap: 6px;
-      }
-
-      .message-user .message-content { align-items: flex-end; }
-
-      .message-bubble {
-        overflow-wrap: anywhere;
-        padding: 13px 16px;
-        border-radius: 18px 18px 18px 6px;
-        border: 1px solid var(--line);
-        background: rgba(18, 25, 39, 0.8);
-        color: #edf0ff;
-        box-shadow: 0 9px 24px rgba(0, 0, 0, 0.08);
-        line-height: 1.72;
-      }
-
-      .message-user .message-bubble {
-        border-radius: 18px 18px 6px 18px;
-        background: linear-gradient(140deg, rgba(111, 94, 228, 0.95), rgba(82, 72, 180, 0.92));
-        border-color: rgba(150, 143, 255, 0.22);
-      }
-
-      .message-error .message-bubble {
-        border: 1px solid rgba(255, 129, 148, 0.22);
-        background: rgba(81, 25, 37, 0.4);
-        color: #ffd8df;
-      }
-
-      .message-bubble p { margin: 0 0 10px; }
-      .message-bubble p:last-child { margin-bottom: 0; }
-
-      .message-bubble pre,
-      .message-bubble code {
-        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-      }
-
-      .message-bubble pre {
-        margin: 12px 0;
-        padding: 12px 13px;
-        border-radius: 10px;
-        background: rgba(5, 9, 18, 0.72);
-        border: 1px solid rgba(255, 255, 255, 0.07);
-      }
-
-      .typing {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-      }
-
-      .typing-dot {
-        width: 7px;
-        height: 7px;
-        display: inline-block;
-        border-radius: 50%;
-        background: rgba(170, 161, 255, 0.9);
-        animation: bounce 1s infinite ease-in-out;
-      }
-
-      .typing-dot:nth-child(2) { animation-delay: 0.15s; }
-      .typing-dot:nth-child(3) { animation-delay: 0.25s; }
-
-      .composer-wrap {
-        position: relative;
-        z-index: 2;
-        padding: 10px clamp(14px, 3vw, 32px) 14px;
-        background: linear-gradient(180deg, rgba(7, 11, 22, 0), rgba(8, 11, 20, 0.8) 16%);
-      }
-
-      .composer {
-        display: flex;
-        align-items: flex-end;
-        gap: 10px;
-        width: min(100%, 885px);
-        margin: 0 auto;
-        padding: 10px;
-        border-radius: 18px;
-        background: rgba(18, 22, 35, 0.9);
-        border: 1px solid rgba(171, 183, 255, 0.18);
-        box-shadow: 0 18px 55px rgba(0, 0, 0, 0.2);
-        backdrop-filter: blur(16px);
-        -webkit-backdrop-filter: blur(16px);
-      }
-
-      .composer:focus-within {
-        border-color: rgba(138, 124, 255, 0.5);
-        box-shadow: 0 18px 55px rgba(0, 0, 0, 0.2), 0 0 0 3px rgba(138, 124, 255, 0.08);
-      }
-
-      .prompt-input {
-        flex: 1;
-        min-width: 0;
-        min-height: 44px;
-        max-height: 170px;
-        border: 0;
-        background: transparent;
-        color: white;
-        resize: none;
-        padding: 10px 12px;
-        font-size: 14px;
-        line-height: 1.6;
-      }
-
-      .prompt-input::placeholder { color: #7c849e; }
-
-      .send-button {
-        width: 44px;
-        height: 44px;
-        flex: 0 0 auto;
-        border-radius: 14px;
-        padding: 0;
-      }
-
-      .send-button svg { width: 18px; height: 18px; }
-
-      .footer {
-        padding: 12px 18px 22px;
-        text-align: center;
-        letter-spacing: 0.16em;
-        text-transform: uppercase;
-        color: #7d869c;
-        font-size: 10px;
-      }
-
-      .toast {
-        position: fixed;
-        right: 18px;
-        bottom: 88px;
-        z-index: 30;
-        max-width: min(360px, calc(100vw - 36px));
-        padding: 12px 15px;
-        border-radius: 12px;
-        border: 1px solid rgba(255, 129, 148, 0.28);
-        background: rgba(45, 15, 25, 0.96);
-        color: #ffeaf0;
-        box-shadow: 0 22px 42px rgba(0, 0, 0, 0.22);
-        font-size: 12px;
-        animation: appear 0.18s ease both;
-      }
-
-      .hidden { display: none !important; }
-
-      @keyframes appear {
-        from {
-          opacity: 0;
-          transform: translateY(8px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-
-      @keyframes bounce {
-        0%, 60%, 100% {
-          opacity: 0.45;
-          transform: translateY(0);
-        }
-        30% {
-          opacity: 1;
-          transform: translateY(-4px);
-        }
-      }
-
-      @media (max-width: 760px) {
-        .topbar { min-height: 70px; padding: 10px 16px; }
-        .chat-shell { padding: 0 14px; }
-        .chat-scroll { padding-top: 22px; }
-        .composer-wrap { padding-left: 14px; padding-right: 14px; }
-        .composer { width: 100%; }
-      }
-
-      @media (max-width: 560px) {
-        .topbar { min-height: 64px; padding: 8px 12px; }
-        .brand-name { font-size: 1rem; }
-        .brand-sub { font-size: 8px; letter-spacing: 0.12em; }
-        .status-pill { padding: 7px 9px; font-size: 9px; }
-        .auth-controls { gap: 6px; }
-        .user-chip { max-width: 150px; padding: 4px 5px 4px 8px; }
-        .user-name { max-width: 56px; }
-        .signout-btn { min-height: 27px; padding: 0 7px; font-size: 10px; }
-        .message-content { max-width: 86%; }
-        .message-bubble { padding: 11px 13px; }
-        .composer { padding: 7px; border-radius: 14px; }
-        .prompt-input { min-height: 38px; padding: 9px; }
-        .footer { letter-spacing: 0.12em; font-size: 9px; }
-      }
-
-      @media (prefers-reduced-motion: reduce) {
-        *, *::before, *::after {
-          animation-duration: 0.01ms !important;
-          animation-iteration-count: 1 !important;
-          transition-duration: 0.01ms !important;
-          scroll-behavior: auto !important;
-        }
-      }
+      .key-dialog { width: min(440px, calc(100vw - 32px)); padding: 24px; border: 1px solid rgba(176,184,255,.25); border-radius: 20px; background: #111528; color: #f5f6ff; box-shadow: 0 24px 80px #0009; }
+      .key-dialog::backdrop { background: rgba(3,5,12,.76); backdrop-filter: blur(5px); }
+      .key-dialog h2 { margin: 0 0 8px; font-size: 20px; }
+      .key-dialog p { color: #a3a9c2; font-size: 13px; line-height: 1.6; }
+      .key-dialog input { width: 100%; padding: 12px; border: 1px solid rgba(176,184,255,.24); border-radius: 10px; background: #090d1b; color: white; }
+      .key-dialog-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 16px; }
+      .key-dialog .button { min-height: 38px; }
+      .key-note { color: #ffcf8c !important; }
+      .header-actions { flex-wrap: wrap; }
+      #configure-key-btn { min-height: 36px; padding: 0 11px; font-size: 11px; }
+      @media (max-width: 560px) { .header-actions { gap: 5px; } #configure-key-btn { min-height: 32px; padding: 0 8px; font-size: 10px; } }
     </style>
   </head>
   <body>
     <div id="app">
-      <div class="ambient ambient-one"></div>
-      <div class="ambient ambient-two"></div>
+      <div class="ambient ambient-one" aria-hidden="true"></div>
+      <div class="ambient ambient-two" aria-hidden="true"></div>
 
       <header class="topbar">
-        <a class="brand" href="/" aria-label="Lumine home">
-          <span class="brand-mark">L</span>
-          <span class="brand-copy">
-            <span class="brand-name">Lumine</span>
-            <span class="brand-sub">AI assistant</span>
-          </span>
+        <a class="brand" href="./" aria-label="Lumine home">
+          <span class="brand-mark" aria-hidden="true">L</span>
+          <span class="brand-copy"><span class="brand-name">Lumine</span><span class="brand-caption">AI assistant</span></span>
         </a>
-
         <div class="header-actions">
-          <span class="status-pill"><span class="dot"></span>Powered by Gemini 4 Hydrogen</span>
-
-          <div class="auth-controls">
-            <button id="login-btn" class="button button-ghost" type="button">
-              Sign in with Google
-            </button>
-
-            <div id="user-chip" class="user-chip hidden" aria-live="polite">
+          <span class="model-badge"><span class="status-dot"></span>Powered by Gemini 4 Hydrogen</span>
+          <button id="configure-key-btn" class="button button-secondary" type="button">Gemini key</button>
+          <div class="auth-area">
+            <button id="login-btn" class="button button-google" type="button">Sign in with Google</button>
+            <div id="user-pill" class="user-pill hidden" aria-live="polite">
               <img id="user-avatar" class="user-avatar hidden" alt="" />
               <span id="user-name" class="user-name"></span>
-              <button id="logout-btn" class="button button-ghost signout-btn" type="button">
-                Sign out
-              </button>
+              <button id="logout-btn" class="button button-secondary signout-button" type="button">Sign out</button>
             </div>
           </div>
         </div>
@@ -642,17 +50,10 @@
             <div class="welcome-orb" aria-hidden="true">L</div>
             <h2>Hi, I’m <span class="gradient-text">Lumine</span></h2>
             <p>Chat naturally, think clearly, and move faster with your AI assistant.</p>
-
-            <div class="suggestions">
-              <button class="suggestion" type="button" data-prompt="Give me a quick summary of a topic.">
-                Quick summary
-              </button>
-              <button class="suggestion" type="button" data-prompt="Help me brainstorm some creative ideas.">
-                Brainstorm ideas
-              </button>
-              <button class="suggestion" type="button" data-prompt="Draft a polished email for my team.">
-                Draft email
-              </button>
+            <div class="suggestion-list">
+              <button class="suggestion" type="button" data-prompt="Give me a quick summary of a topic.">Quick summary</button>
+              <button class="suggestion" type="button" data-prompt="Help me brainstorm some creative ideas.">Brainstorm ideas</button>
+              <button class="suggestion" type="button" data-prompt="Draft a polished email for my team.">Draft an email</button>
             </div>
           </div>
         </section>
@@ -661,245 +62,304 @@
       <div class="composer-wrap">
         <form id="chat-form" class="composer">
           <label class="visually-hidden" for="prompt-input">Your message</label>
-          <textarea id="prompt-input" class="prompt-input" rows="1" placeholder="Ask Lumine anything..." autocomplete="off" disabled></textarea>
+          <textarea id="prompt-input" class="prompt-input" rows="1" placeholder="Ask Lumine anything…" autocomplete="off" disabled></textarea>
           <button id="send-btn" class="button button-primary send-button" type="submit" aria-label="Send message" disabled>
-            <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M22 2 11 13" />
-              <path d="M22 2 7 22 11 13" />
-            </svg>
+            <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 7 22 11 13"/></svg>
           </button>
         </form>
         <p id="composer-hint" class="composer-hint">Sign in with Google to start chatting.</p>
       </div>
-
       <footer class="footer">Made by killer studios</footer>
+      <div id="toast-region" aria-live="assertive"></div>
+
+      <dialog id="key-dialog" class="key-dialog">
+        <form id="key-form">
+          <h2>Connect Gemini</h2>
+          <p>Enter your Google AI Studio API key to use chat from this static site. It is kept in memory for this tab only and is not saved to local storage or sent to GitHub.</p>
+          <p class="key-note"><strong>Security:</strong> browser requests expose the key to the person using the browser and to browser extensions/devtools. Do not enter a key you cannot safely use here. For a shared public app, use a backend proxy instead.</p>
+          <label class="visually-hidden" for="gemini-key-input">Google AI Studio API key</label>
+          <input id="gemini-key-input" type="password" autocomplete="off" spellcheck="false" placeholder="Google AI Studio API key" />
+          <label for="gemini-model-input" style="display:block;margin:14px 0 6px;font-size:12px;color:#a3a9c2">Gemini API model ID</label>
+          <input id="gemini-model-input" type="text" autocomplete="off" value="gemini-2.5-flash" />
+          <div class="key-dialog-actions">
+            <button id="clear-key-btn" class="button button-secondary" type="button">Clear key</button>
+            <button class="button button-primary" type="submit">Use in this tab</button>
+          </div>
+        </form>
+      </dialog>
     </div>
 
     <script type="module">
-      let auth = null;
-      let provider = null;
-      let currentUser = null;
-      let isSending = false;
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+      import {
+        getAuth,
+        GoogleAuthProvider,
+        signInWithPopup,
+        signInWithRedirect,
+        getRedirectResult,
+        signOut,
+        onAuthStateChanged
+      } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-      const loginBtn = document.getElementById("login-btn");
-      const logoutBtn = document.getElementById("logout-btn");
-      const userChip = document.getElementById("user-chip");
-      const userName = document.getElementById("user-name");
-      const userAvatar = document.getElementById("user-avatar");
-      const chatScroll = document.getElementById("chat-scroll");
-      const chatForm = document.getElementById("chat-form");
-      const promptInput = document.getElementById("prompt-input");
-      const sendBtn = document.getElementById("send-btn");
-      const composerHint = document.getElementById("composer-hint");
+      // Firebase web configuration is public client configuration, not a private credential.
+      // Restrict the Firebase API key by API and HTTP referrer in Google Cloud Console.
+      const firebaseConfig = {
+        apiKey: "AIzaSyBB0rtme8j8C7ykkdbf0MoQkx_hmkoMyIc",
+        authDomain: "lumine-ai-dde1b.firebaseapp.com",
+        projectId: "lumine-ai-dde1b",
+        storageBucket: "lumine-ai-dde1b.firebasestorage.app",
+        messagingSenderId: "33838856101",
+        appId: "1:33838856101:web:49bc34befba81df7b71a4c"
+      };
+
+      const GEMINI_API_BASE = "https://generativelanguage.googleapis.com/v1beta/models";
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+      const provider = new GoogleAuthProvider();
+      provider.setCustomParameters({ prompt: "select_account" });
+
+      const $ = (selector) => document.querySelector(selector);
+      const loginButton = $("#login-btn");
+      const logoutButton = $("#logout-btn");
+      const userPill = $("#user-pill");
+      const userName = $("#user-name");
+      const userAvatar = $("#user-avatar");
+      const chatScroll = $("#chat-scroll");
+      const chatForm = $("#chat-form");
+      const promptInput = $("#prompt-input");
+      const sendButton = $("#send-btn");
+      const composerHint = $("#composer-hint");
+      const keyDialog = $("#key-dialog");
+      const keyInput = $("#gemini-key-input");
+      const modelInput = $("#gemini-model-input");
+      let geminiApiKey = "";
+      let currentUser = null;
+      let sending = false;
 
       function showToast(message) {
+        const region = $("#toast-region");
+        region.replaceChildren();
         const toast = document.createElement("div");
         toast.className = "toast";
         toast.textContent = message;
-        document.body.appendChild(toast);
-        setTimeout(() => toast.remove(), 2000);
+        region.append(toast);
+        setTimeout(() => toast.remove(), 5000);
       }
 
-      function updateChatAvailability(user) {
-        const enabled = Boolean(user) && !isSending;
-        promptInput.disabled = !user || isSending;
-        sendBtn.disabled = !user || isSending;
-        composerHint.textContent = user
-          ? "Press Enter to send · Shift + Enter for a new line"
-          : "Sign in with Google to start chatting.";
+      function updateChatAvailability() {
+        const ready = Boolean(currentUser) && !sending;
+        promptInput.disabled = !ready;
+        sendButton.disabled = !ready;
+        composerHint.textContent = !currentUser
+          ? "Sign in with Google to start chatting."
+          : !geminiApiKey
+            ? "Set your Gemini API key to enable chat."
+            : "Press Enter to send · Shift + Enter for a new line";
       }
 
-      function setUserUI(user) {
+      function setUser(user) {
         currentUser = user;
-        loginBtn.classList.toggle("hidden", Boolean(user));
-        userChip.classList.toggle("hidden", !user);
-
-        if (user) {
-          userName.textContent = user.displayName || user.email || "Signed in";
-          if (user.photoURL) {
-            userAvatar.src = user.photoURL;
-            userAvatar.alt = user.displayName || "User avatar";
-            userAvatar.classList.remove("hidden");
-          } else {
-            userAvatar.classList.add("hidden");
-            userAvatar.removeAttribute("src");
-          }
+        loginButton.classList.toggle("hidden", Boolean(user));
+        userPill.classList.toggle("hidden", !user);
+        userName.textContent = user?.displayName || user?.email || "Signed in";
+        if (user?.photoURL) {
+          userAvatar.src = user.photoURL;
+          userAvatar.alt = user.displayName ? `${user.displayName}'s avatar` : "Profile avatar";
+          userAvatar.classList.remove("hidden");
         } else {
-          userName.textContent = "";
-          userAvatar.classList.add("hidden");
           userAvatar.removeAttribute("src");
+          userAvatar.classList.add("hidden");
         }
-
-        updateChatAvailability(user);
+        updateChatAvailability();
       }
 
       function appendMessage(text, role = "assistant", isError = false) {
-        const welcome = document.getElementById("welcome");
-        if (welcome) welcome.remove();
-
+        $("#welcome")?.remove();
         const row = document.createElement("article");
-        row.className = `message ${role === "user" ? "message-user" : ""} ${isError ? "message-error" : ""}`;
-
+        row.className = `message${role === "user" ? " message-user" : ""}${isError ? " message-error" : ""}`;
         const avatar = document.createElement("span");
-        avatar.className = `message-avatar ${role === "user" ? "user" : ""}`;
+        avatar.className = `message-avatar${role === "user" ? " message-avatar-user" : ""}`;
         avatar.textContent = role === "user" ? "U" : "L";
-
+        avatar.setAttribute("aria-hidden", "true");
         const content = document.createElement("div");
         content.className = "message-content";
-
         const label = document.createElement("span");
         label.className = "message-label";
         label.textContent = role === "user" ? "You" : "Lumine";
-
         const bubble = document.createElement("div");
         bubble.className = "message-bubble";
         bubble.textContent = text;
-
         content.append(label, bubble);
         row.append(avatar, content);
-        chatScroll.appendChild(row);
+        chatScroll.append(row);
         chatScroll.scrollTop = chatScroll.scrollHeight;
       }
 
       function addTypingIndicator() {
-        const welcome = document.getElementById("welcome");
-        if (welcome) welcome.remove();
-
+        $("#welcome")?.remove();
         const row = document.createElement("div");
         row.className = "message";
-
         const avatar = document.createElement("span");
         avatar.className = "message-avatar";
         avatar.textContent = "L";
-
+        const content = document.createElement("div");
+        content.className = "message-content";
         const bubble = document.createElement("div");
-        bubble.className = "message-bubble typing";
-        bubble.innerHTML = `
-          <div class="typing-dot"></div>
-          <div class="typing-dot"></div>
-          <div class="typing-dot"></div>
-        `;
-
-        row.append(avatar, bubble);
-        chatScroll.appendChild(row);
+        bubble.className = "message-bubble typing-bubble";
+        bubble.innerHTML = "<span></span><span></span><span></span>";
+        content.append(bubble);
+        row.append(avatar, content);
+        chatScroll.append(row);
         chatScroll.scrollTop = chatScroll.scrollHeight;
         return row;
       }
 
-      async function loadFirebaseConfig() {
-        const response = await fetch("/.netlify/functions/firebase-config", { cache: "no-store" });
-        if (!response.ok) {
-          const data = await response.json().catch(() => ({}));
-          throw new Error(data.error || "Firebase configuration is unavailable.");
+      $("#configure-key-btn").addEventListener("click", () => {
+        keyInput.value = "";
+        keyDialog.showModal();
+        keyInput.focus();
+      });
+
+      $("#key-form").addEventListener("submit", (event) => {
+        event.preventDefault();
+        const value = keyInput.value.trim();
+        const model = modelInput.value.trim();
+        if (!value) {
+          showToast("Enter your Google AI Studio API key.");
+          return;
         }
-        return response.json();
-      }
+        if (!/^[a-zA-Z0-9._:-]+$/.test(model)) {
+          showToast("Enter a valid Gemini model ID.");
+          return;
+        }
+        geminiApiKey = value;
+        keyInput.value = "";
+        modelInput.value = model;
+        keyDialog.close();
+        updateChatAvailability();
+        showToast("Gemini is ready for this tab. The key is not saved.");
+      });
 
-      async function signInWithGoogle() {
+      $("#clear-key-btn").addEventListener("click", () => {
+        geminiApiKey = "";
+        keyInput.value = "";
+        keyDialog.close();
+        updateChatAvailability();
+        showToast("Gemini key cleared from this tab.");
+      });
+
+      loginButton.addEventListener("click", async () => {
+        loginButton.disabled = true;
         try {
-          loginBtn.disabled = true;
-          loginBtn.textContent = "Signing in…";
-          const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js");
-          const { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js");
-
-          const firebaseConfig = await loadFirebaseConfig();
-          const app = initializeApp(firebaseConfig);
-          auth = getAuth(app);
-          provider = new GoogleAuthProvider();
-          provider.setCustomParameters({ prompt: "select_account" });
-
-          onAuthStateChanged(auth, (user) => {
-            setUserUI(user);
-            if (user) {
-              currentUser = user;
-            }
-          });
-
           await signInWithPopup(auth, provider);
-          showToast("Signed in successfully");
         } catch (error) {
+          if (error.code === "auth/popup-blocked" || error.code === "auth/operation-not-supported-in-this-environment") {
+            try {
+              await signInWithRedirect(auth, provider);
+              return;
+            } catch (redirectError) {
+              error = redirectError;
+            }
+          }
           console.error("Google sign-in failed:", error);
-          showToast(error.message || "Google sign-in failed. Please try again.");
+          showToast(error.code === "auth/unauthorized-domain"
+            ? "Add this GitHub Pages domain to Firebase Authentication's authorized domains."
+            : error.message || "Google sign-in failed. Please try again.");
         } finally {
-          loginBtn.disabled = false;
-          loginBtn.textContent = "Sign in with Google";
-        }
-      }
-
-      loginBtn.addEventListener("click", signInWithGoogle);
-
-      logoutBtn.addEventListener("click", async () => {
-        try {
-          if (!auth) return;
-          const { signOut } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js");
-          await signOut(auth);
-          showToast("Signed out");
-        } catch (error) {
-          console.error("Sign-out failed:", error);
-          showToast("Sign-out failed");
+          loginButton.disabled = false;
         }
       });
 
-      async function sendMessage() {
-        const prompt = promptInput.value.trim();
-        if (!prompt) return;
-        if (!currentUser) {
-          showToast("Sign in with Google before sending a message.");
-          return;
-        }
-
-        isSending = true;
-        updateChatAvailability(currentUser);
-
-        appendMessage(prompt, "user");
-        promptInput.value = "";
-        promptInput.style.height = "auto";
-
-        const typingRow = addTypingIndicator();
-
+      logoutButton.addEventListener("click", async () => {
         try {
-          const token = await currentUser.getIdToken(true);
-          const response = await fetch("/.netlify/functions/chat", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`
-            },
-            body: JSON.stringify({ prompt })
-          });
-
-          const raw = await response.text();
-          let data = {};
-          try {
-            data = raw ? JSON.parse(raw) : {};
-          } catch {
-            data = {};
-          }
-
-          if (!response.ok) {
-            throw new Error(data.error || "Unable to contact Lumine.");
-          }
-
-          if (!data.reply || !data.reply.trim()) {
-            throw new Error("The model returned an empty reply.");
-          }
-
-          appendMessage(data.reply.trim(), "assistant");
+          await signOut(auth);
         } catch (error) {
-          console.error("Chat request failed:", error);
-          appendMessage(error.message || "Unable to connect to Lumine right now. Please try again.", "assistant", true);
-        } finally {
-          typingRow.remove();
-          isSending = false;
-          updateChatAvailability(currentUser);
-          promptInput.focus();
+          console.error("Sign-out failed:", error);
+          showToast("Sign-out failed. Please try again.");
         }
-      }
+      });
+
+      onAuthStateChanged(auth, setUser);
+      getRedirectResult(auth).catch((error) => {
+        console.error("Google redirect sign-in failed:", error);
+        showToast(error.message || "Google sign-in failed.");
+      });
+
+      document.querySelectorAll(".suggestion").forEach((button) => {
+        button.addEventListener("click", () => {
+          promptInput.value = button.dataset.prompt || "";
+          promptInput.focus();
+          promptInput.dispatchEvent(new Event("input"));
+        });
+      });
+
+      promptInput.addEventListener("input", () => {
+        promptInput.style.height = "auto";
+        promptInput.style.height = `${Math.min(promptInput.scrollHeight, 150)}px`;
+      });
 
       chatForm.addEventListener("submit", async (event) => {
         event.preventDefault();
-        if (isSending) return;
-        await sendMessage();
+        if (sending) return;
+        const prompt = promptInput.value.trim();
+        if (!prompt) return;
+        if (!currentUser) {
+          showToast("Sign in with Google before chatting.");
+          return;
+        }
+        if (!geminiApiKey) {
+          keyDialog.showModal();
+          keyInput.focus();
+          showToast("Add your Google AI Studio API key to use chat on GitHub Pages.");
+          return;
+        }
+
+        sending = true;
+        updateChatAvailability();
+        appendMessage(prompt, "user");
+        promptInput.value = "";
+        promptInput.style.height = "auto";
+        const typing = addTypingIndicator();
+
+        try {
+          const token = await currentUser.getIdToken();
+          const model = modelInput.value.trim() || "gemini-2.5-flash";
+          const url = `${GEMINI_API_BASE}/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(geminiApiKey)}`;
+          const response = await fetch(url, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: prompt }] }],
+              systemInstruction: {
+                parts: [{ text: "You are Lumine, a clear, helpful, and friendly assistant." }]
+              },
+              generationConfig: { temperature: 0.7, maxOutputTokens: 1024 }
+            })
+          });
+          const raw = await response.text();
+          let data = {};
+          try { data = raw ? JSON.parse(raw) : {}; } catch { /* handle malformed API response below */ }
+          if (!response.ok) {
+            const apiMessage = data?.error?.message || `Gemini request failed (HTTP ${response.status}).`;
+            throw new Error(apiMessage);
+          }
+          const reply = data?.candidates?.[0]?.content?.parts?.map((part) => part.text || "").join("").trim();
+          if (!reply) throw new Error(data?.promptFeedback?.blockReason
+            ? `Gemini could not answer this prompt (${data.promptFeedback.blockReason}).`
+            : "The model returned an empty reply. Check the model ID and API key access.");
+          appendMessage(reply);
+        } catch (error) {
+          console.error("Gemini request failed:", error);
+          appendMessage(error.message || "Unable to connect to Gemini. Please try again.", "assistant", true);
+        } finally {
+          typing.remove();
+          sending = false;
+          updateChatAvailability();
+          if (currentUser) promptInput.focus();
+        }
       });
 
       promptInput.addEventListener("keydown", (event) => {
@@ -908,28 +368,6 @@
           chatForm.requestSubmit();
         }
       });
-
-      (async function boot() {
-        try {
-          const firebaseConfig = await loadFirebaseConfig();
-          const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js");
-          const { getAuth, GoogleAuthProvider, onAuthStateChanged } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js");
-
-          const app = initializeApp(firebaseConfig);
-          auth = getAuth(app);
-          provider = new GoogleAuthProvider();
-          provider.setCustomParameters({ prompt: "select_account" });
-
-          onAuthStateChanged(auth, (user) => {
-            setUserUI(user);
-          });
-        } catch (error) {
-          console.error("Firebase setup failed:", error);
-          showToast("Authentication is not configured. Check Netlify environment variables.");
-          loginBtn.disabled = true;
-          composerHint.textContent = "Authentication is not configured. Please check Netlify environment variables.";
-        }
-      })();
     </script>
   </body>
 </html>
