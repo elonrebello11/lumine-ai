@@ -1,39 +1,37 @@
 import { GoogleGenAI } from '@google/genai';
 
-const ai = new GoogleGenAI({});
-
-const json = (data, status = 200) =>
-    new Response(JSON.stringify(data), {
-        status,
-        headers: { 'Content-Type': 'application/json' },
-    });
-
-export default async (req) => {
-    if (req.method !== 'POST') {
-        return json({ error: 'Method not allowed' }, 405);
+export async function handler(event, context) {
+    if (event.httpMethod !== 'POST') {
+        return { statusCode: 405, body: JSON.stringify({ error: 'Method not allowed' }) };
     }
 
     try {
-        const { prompt } = await req.json();
+        const { prompt } = JSON.parse(event.body);
         if (!prompt) {
-            return json({ error: 'Prompt is required' }, 400);
+            return { statusCode: 400, body: JSON.stringify({ error: 'Prompt is required' }) };
         }
 
-        let systemInstruction = "You are Lumine, a neutral, fast, and helpful AI assistant with no gender. Keep your answers concise, clear, and direct.";
+        const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
-        if (prompt.startsWith('/admin')) {
-            systemInstruction += " [Admin mode active: Unlimited tokens and priority system response authorized.]";
-        }
         const response = await ai.models.generateContent({
-            model: 'gemini-4-hydrogen',
+            model: 'gemini-2.5-flash',
             contents: prompt,
-            config: { systemInstruction },
+            config: {
+                systemInstruction: "You are Lumine, a neutral, fast, and helpful AI assistant created by Killer Studious and Powered by Hydrogen Gemini."
+            }
         });
 
-        return json({ reply: response.text });
+        return { 
+            statusCode: 200, 
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ reply: response.text }) 
+        };
     } catch (error) {
-        console.error('Error:', error);
-        return json({ error: 'Failed to generate response from Lumine.' }, 500);
+        console.error('Execution Error:', error);
+        return { 
+            statusCode: 500, 
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ error: error.message || 'Failed to generate response.' }) 
+        };
     }
-};
-
+}
