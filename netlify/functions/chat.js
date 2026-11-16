@@ -1,5 +1,5 @@
 const GEMINI_API_URL =
-  "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
+  `https://generativelanguage.googleapis.com/v1beta/models/${process.env.GEMINI_MODEL || "gemini-2.5-flash"}:generateContent`;
 
 function jsonResponse(statusCode, payload) {
   return {
@@ -52,32 +52,32 @@ exports.handler = async function handler(event) {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        contents: [
-          {
-            parts: [{ text: prompt }]
-          }
-        ],
+        contents: [{ parts: [{ text: prompt }] }],
         systemInstruction: {
-          parts: [
-            {
-              text:
-                "You are Lumine, a clear, helpful, and friendly AI assistant created by killer studious and powered by Hydrogen Gemini."
-            }
-          ]
+          parts: [{
+            text: "You are Lumine, a helpful assistant. Keep replies clear, concise, and polished."
+          }]
         },
         generationConfig: {
           temperature: 0.7,
+          topP: 0.9,
           maxOutputTokens: 1024
         }
       })
     });
 
-    const data = await response.json();
+    const text = await response.text();
+    let data = {};
+    try {
+      data = text ? JSON.parse(text) : {};
+    } catch {
+      data = {};
+    }
 
     if (!response.ok) {
-      const message = data?.error?.message || "Gemini request failed";
-      console.error("Gemini API error:", message);
-      return jsonResponse(response.status || 500, { error: message });
+      return jsonResponse(response.status || 500, {
+        error: data?.error?.message || "Gemini request failed"
+      });
     }
 
     const reply =
