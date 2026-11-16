@@ -1,5 +1,3 @@
-import { GoogleGenAI } from '@google/genai';
-
 export async function handler(event, context) {
     if (event.httpMethod !== 'POST') {
         return { statusCode: 405, body: JSON.stringify({ error: 'Method not allowed' }) };
@@ -11,20 +9,23 @@ export async function handler(event, context) {
             return { statusCode: 400, body: JSON.stringify({ error: 'Prompt is required' }) };
         }
 
-        const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-
-        const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
-            contents: prompt,
-            config: {
-                systemInstruction: "You are Lumine, a neutral, fast, and helpful AI assistant created by Killer Studious and Powered by Hydrogen Gemini."
-            }
+        const apiKey = process.env.GEMINI_API_KEY;
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                contents: [{ parts: [{ text: prompt }] }],
+                systemInstruction: { parts: [{ text: "You are Lumine, a neutral, fast, and helpful AI assistant created by Killer Studious and Powered by Hydrogen Gemini." }] }
+            })
         });
+
+        const data = await response.json();
+        const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || "No response generated.";
 
         return { 
             statusCode: 200, 
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ reply: response.text }) 
+            body: JSON.stringify({ reply }) 
         };
     } catch (error) {
         console.error('Execution Error:', error);
